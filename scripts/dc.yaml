@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: ose-secret-configmap-eap
+  name: ose-secret-configmap-eap
+spec:
+  replicas: 1
+  selector:
+    app: ose-secret-configmap-eap
+    deploymentconfig: ose-secret-configmap-eap
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: ose-secret-configmap-eap
+        deploymentconfig: ose-secret-configmap-eap
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_IP
+          valueFrom:
+            configMapKeyRef:
+              key: MYSQL_IP
+              name: testmap
+        - name: MYSQL_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: MYSQL_PORT
+              name: testmap
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              key: MYSQL_USER
+              name: testmap
+        - name: MYSQL_PASS
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_PASS
+              name: testsecret
+        image: docker-registry.default.svc:5000/test/ose-secret-configmap-eap@sha256:8d91cceade870d90badc46bcfdff4160ffd894b452ede27e4696a41fae7958ee
+        imagePullPolicy: Always
+        name: ose-secret-configmap-eap
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+        - containerPort: 8778
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - ose-secret-configmap-eap
+      from:
+        kind: ImageStreamTag
+        name: ose-secret-configmap-eap:latest
+        namespace: test
+    type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
